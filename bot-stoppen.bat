@@ -1,16 +1,12 @@
 @echo off
-if exist bot.pid (
-    set /p BOT_PID=<bot.pid
-    taskkill /f /pid %BOT_PID% >nul 2>&1
-    del bot.pid >nul 2>&1
-    echo CleverQ Termin-Bot (PID %BOT_PID%) wurde beendet.
-) else (
-    taskkill /f /im node.exe >nul 2>&1
-    if %errorlevel% equ 0 (
-        echo Node.js Bot-Prozesse wurden beendet.
-    ) else (
-        echo Es lief kein Bot-Prozess.
-    )
-)
+setlocal enabledelayedexpansion
+
+echo Suche und beende alle laufenden CleverQ Bot-Prozesse...
+powershell -NoProfile -Command "Get-CimInstance Win32_Process -Filter \"Name = 'node.exe'\" | Where-Object { $_.CommandLine -like '*bot.js*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force; Write-Host \"Bot-Prozess (PID $($_.ProcessId)) wurde beendet.\" }"
+
+if exist bot.pid del /f /q bot.pid >nul 2>&1
+
+echo.
+echo Alle Bot-Instanzen wurden vollstaendig gestoppt.
 echo.
 pause

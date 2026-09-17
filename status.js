@@ -1,30 +1,31 @@
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
-const PID_FILE = path.join(__dirname, "bot.pid");
 const LOG_FILE = path.join(__dirname, "bot.log");
 
 console.log("\n====================================================");
 console.log("📊 CleverQ Bot Status-Prüfung");
 console.log("====================================================");
 
-let isRunning = false;
-let pid = null;
+let runningPids = [];
+try {
+  const output = execSync(
+    "powershell -NoProfile -Command \"(Get-CimInstance Win32_Process -Filter \\\"Name = 'node.exe'\\\" | Where-Object { $_.CommandLine -like '*bot.js*' }).ProcessId\"",
+    { encoding: "utf8" },
+  ).trim();
 
-if (fs.existsSync(PID_FILE)) {
-  try {
-    pid = parseInt(fs.readFileSync(PID_FILE, "utf8").trim(), 10);
-    // process.kill with signal 0 checks if process exists without killing it
-    process.kill(pid, 0);
-    isRunning = true;
-  } catch (err) {
-    isRunning = false;
+  if (output) {
+    runningPids = output
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
-}
+} catch (_) {}
 
-if (isRunning) {
+if (runningPids.length > 0) {
   console.log(`🟢 STATUS: Bot LÄUFT aktiv im Hintergrund!`);
-  console.log(`📌 Prozess-ID (PID): ${pid}`);
+  console.log(`📌 Aktive Instanz(en) [PID]: ${runningPids.join(", ")}`);
 } else {
   console.log(`🔴 STATUS: Bot läuft aktuell NICHT.`);
   console.log(`💡 Du kannst ihn starten mit:`);
