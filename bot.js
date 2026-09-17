@@ -1,6 +1,34 @@
 require("dotenv").config();
 const CleverQClient = require("./cleverq-api");
 const Notifier = require("./notifier");
+const fs = require("fs");
+const path = require("path");
+
+const LOG_FILE = path.join(__dirname, "bot.log");
+const PID_FILE = path.join(__dirname, "bot.pid");
+
+const origLog = console.log;
+const origErr = console.error;
+
+console.log = function (...args) {
+  const line = args
+    .map((a) => (typeof a === "object" ? JSON.stringify(a) : a))
+    .join(" ");
+  origLog.apply(console, args);
+  try {
+    fs.appendFileSync(LOG_FILE, line + "\n");
+  } catch (_) {}
+};
+
+console.error = function (...args) {
+  const line =
+    "[ERROR] " +
+    args.map((a) => (typeof a === "object" ? JSON.stringify(a) : a)).join(" ");
+  origErr.apply(console, args);
+  try {
+    fs.appendFileSync(LOG_FILE, line + "\n");
+  } catch (_) {}
+};
 
 const SITE_SLUG = process.env.SITE_SLUG || "norderstedt";
 const SERVICE_ID = parseInt(process.env.SERVICE_ID || "280", 10);
@@ -201,6 +229,24 @@ async function main() {
   if (isListMode) {
     await listSubtasks();
     return;
+  }
+
+  if (!isOnceMode) {
+    fs.writeFileSync(PID_FILE, process.pid.toString());
+    const cleanup = () => {
+      try {
+        if (fs.existsSync(PID_FILE)) fs.unlinkSync(PID_FILE);
+      } catch (_) {}
+    };
+    process.on("exit", cleanup);
+    process.on("SIGINT", () => {
+      cleanup();
+      process.exit();
+    });
+    process.on("SIGTERM", () => {
+      cleanup();
+      process.exit();
+    });
   }
 
   console.log(`\n====================================================`);

@@ -7,6 +7,7 @@
     "start": "node bot.js",
     "once": "node bot.js --once",
     "list": "node bot.js --list",
+    "status": "node status.js",
     "check": "node check-day.js",
     "test-telegram": "node test-telegram.js"
   },
