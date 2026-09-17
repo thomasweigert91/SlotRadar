@@ -1,0 +1,22 @@
+{
+  "name": "scraper-bot-termine",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node bot.js",
+    "once": "node bot.js --once",
+    "list": "node bot.js --list",
+    "check": "node check-day.js",
+    "test-telegram": "node test-telegram.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.20.0",
+    "dotenv": "^17.4.2",
+    "node-notifier": "^10.0.1"
+  }
+}
