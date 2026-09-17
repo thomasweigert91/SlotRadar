@@ -34,8 +34,14 @@ const SITE_SLUG = process.env.SITE_SLUG || "norderstedt";
 const SERVICE_ID = parseInt(process.env.SERVICE_ID || "280", 10);
 const SUBTASK_ID = parseInt(process.env.SUBTASK_ID || "191", 10);
 const SUBTASK_COUNT = parseInt(process.env.SUBTASK_COUNT || "1", 10);
-const DAYS_AHEAD = parseInt(process.env.DAYS_AHEAD || "5", 10);
-const WEEKS_AHEAD = parseInt(process.env.WEEKS_AHEAD || "0", 10);
+const DAYS_AHEAD = process.env.DAYS_AHEAD
+  ? parseInt(process.env.DAYS_AHEAD, 10)
+  : 0;
+const WEEKS_AHEAD = process.env.WEEKS_AHEAD
+  ? parseInt(process.env.WEEKS_AHEAD, 10)
+  : DAYS_AHEAD
+    ? 0
+    : 2;
 const DEFAULT_INTERVAL = parseInt(
   process.env.CHECK_INTERVAL_SECONDS || "30",
   10,
